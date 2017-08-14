@@ -11,6 +11,15 @@ from docsbox import app, rq
 from docsbox.docs.tasks import remove_file, process_document
 
 
+class DocumentStatusView(Resource):
+
+    def get(self):
+        """
+        Returns information about queue status.
+        """
+        return abort(404, message="Unknown queue len")
+
+
 class DocumentView(Resource):
 
     def get(self, task_id):

@@ -1,3 +1,6 @@
+import rq_dashboard
+
+
 from flask import Flask
 from flask.ext.rq2 import RQ
 from flask_restful import Api
@@ -6,6 +9,12 @@ from flask_env_settings import Settings
 
 app = Flask(__name__)
 app.config.from_object("docsbox.settings")
+
+
+# rq_dashboard monitoring
+app.config.from_object("docsbox.rq-dashboard-settings")
+app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
+
 
 Settings(app, rules={
     "REDIS_JOB_TIMEOUT": (int, 60 * 10),
@@ -20,13 +29,18 @@ Settings(app, rules={
     "THUMBNAILS_QUANTIZE_COLORSPACE": (str, "rgb"),
 })
 
+
 api = Api(app)
 rq = RQ(app)
 
-from docsbox.docs.views import DocumentView, DocumentCreateView
-    
-api.add_resource(DocumentView, "/api/v1/<task_id>")
-api.add_resource(DocumentCreateView, "/api/v1/")
+
+from docsbox.docs.views import DocumentView, DocumentCreateView, DocumentStatusView
+
+
+api.add_resource(DocumentStatusView, "/api/v1/status")
+api.add_resource(DocumentView, "/api/v1/job/<task_id>")
+api.add_resource(DocumentCreateView, "/api/v1/job/")
+
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
