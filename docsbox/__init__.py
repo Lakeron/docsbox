@@ -34,11 +34,12 @@ api = Api(app)
 rq = RQ(app)
 
 
-from docsbox.docs.views import DocumentView, DocumentCreateView
+from docsbox.docs.views import DocumentView, DocumentCreateView, DocumentTestView
 
 
 api.add_resource(DocumentView, "/api/v1/<task_id>")
 api.add_resource(DocumentCreateView, "/api/v1/")
+api.add_resource(DocumentTestView, "/test/")
 
 
 if __name__ == "__main__":

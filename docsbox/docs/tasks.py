@@ -11,6 +11,13 @@ from rq import get_current_job
 from docsbox import app, rq
 from docsbox.docs.utils import make_zip_archive, make_thumbnails
 
+from time import sleep
+
+
+@rq.job(timeout=app.config["REDIS_JOB_TIMEOUT"])
+def test(time_to_sleep):
+    sleep(time_to_sleep)
+    return 'done'
 
 
 @rq.job(timeout=app.config["REDIS_JOB_TIMEOUT"])

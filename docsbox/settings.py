@@ -100,3 +100,6 @@ SUPPORTED_MIMETYPES = {
 DEFAULT_OPTIONS = {
     "formats": ["pdf"]
 }
+
+# Queues to listen on
+QUEUES = ['high', 'normal', 'low', 'default']

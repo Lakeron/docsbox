@@ -8,7 +8,23 @@ from flask import request
 from flask_restful import Resource, abort
 
 from docsbox import app, rq
-from docsbox.docs.tasks import remove_file, process_document
+from docsbox.docs.tasks import remove_file, process_document, test
+
+
+class DocumentTestView(Resource):
+
+    def get(self):
+        args_self = self
+        """
+        Test
+        """
+        high_queue = rq.get_queue('high')
+        low_queue = rq.get_queue('low')
+        default_queue = rq.get_queue('default')
+
+        high_queue.enqueue(test, 5)
+        low_queue.enqueue(test, 5)
+        return default_queue.enqueue(test, 5)
 
 
 class DocumentView(Resource):
@@ -42,8 +58,9 @@ class DocumentCreateView(Resource):
             with NamedTemporaryFile(delete=False, prefix=app.config["MEDIA_PATH"]) as tmp_file:
                 request.files["file"].save(tmp_file)
                 remove_file.schedule(
-                    datetime.timedelta(seconds=app.config["ORIGINAL_FILE_TTL"])
-                , tmp_file.name)
+                    datetime.timedelta(seconds=app.config["ORIGINAL_FILE_TTL"]),
+                    tmp_file.name
+                )
                 with Magic() as magic: # detect mimetype
                     mimetype = magic.from_file(tmp_file.name)
                     if mimetype not in app.config["SUPPORTED_MIMETYPES"]:
@@ -82,9 +99,17 @@ class DocumentCreateView(Resource):
                         }
                     else:
                         options = app.config["DEFAULT_OPTIONS"]
-                task = process_document.queue(tmp_file.name, options, {
+
+                priority = request.form.get("priority", None)
+                if priority in app.config["QUEUES"]:
+                    queue = rq.get_queue(priority)
+                else:
+                    queue = rq.get_queue('default')
+
+                task = queue.enqueue(process_document, tmp_file.name, options, {
                     "mimetype": mimetype,
                 })
+
         return {
             "id": task.id,
             "status": task.status,
