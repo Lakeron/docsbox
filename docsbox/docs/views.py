@@ -33,8 +33,13 @@ class DocumentView(Resource):
         """
         Returns information about task status.
         """
-        queue = rq.get_queue()
-        task = queue.fetch_job(task_id)
+
+        for priority in app.config["QUEUES"]:
+            queue = rq.get_queue(priority)
+            task = queue.fetch_job(task_id)
+            if(task):
+                break
+
         if task:
             return {
                 "id": task.id,
