@@ -1,6 +1,5 @@
 import rq_dashboard
 
-
 from flask import Flask
 from flask.ext.rq2 import RQ
 from flask_restful import Api
@@ -9,10 +8,6 @@ from flask_env_settings import Settings
 
 app = Flask(__name__)
 app.config.from_object("docsbox.settings")
-
-
-# rq_dashboard monitoring
-app.config.from_object("docsbox.rq-dashboard-settings")
 app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
 
 

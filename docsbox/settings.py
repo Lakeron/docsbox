@@ -1,11 +1,18 @@
 import os
 
+
+# RQ DASHBOARD
+RQ_POLL_INTERVAL = 1000  #: Web interface poll period for updates in ms
+
+
 REDIS_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")
 RQ_REDIS_URL = REDIS_URL
+
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 MEDIA_PATH = os.path.join(BASE_DIR, "media/")
 MEDIA_URL = "/media/"
+
 
 SUPPORTED_FORMATS = {
     "pdf": {
@@ -26,10 +33,12 @@ SUPPORTED_FORMATS = {
     }
 }
 
+
 DOCUMENT_EXPORT_FORMATS = ["pdf", "txt", "html"]
 SPREADSHEET_EXPORT_FORMATS = ["pdf", "csv", "html"]
 PRESENTATION_EXPORT_FORMATS = ["pdf", "html"]
 PDF_EXPORT_FORMATS = ["html"]
+
 
 SUPPORTED_MIMETYPES = {
     # CDFV2
@@ -97,9 +106,7 @@ SUPPORTED_MIMETYPES = {
     },
 }
 
+
 DEFAULT_OPTIONS = {
     "formats": ["pdf"]
 }
-
-# Queues to listen on
-QUEUES = ['high', 'normal', 'low', 'default']
