@@ -44,6 +44,12 @@ PDF_EXPORT_FORMATS = ["html"]
 
 
 SUPPORTED_MIMETYPES = {
+    # Steam documents
+    "application/octet-stream": {
+        "formats": DOCUMENT_EXPORT_FORMATS,
+        "ext": ["doc", "docx"],
+    },
+
     # CDFV2
     "application/CDFV2-unknown": {
         "formats": DOCUMENT_EXPORT_FORMATS,

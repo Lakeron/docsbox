@@ -1,5 +1,6 @@
 import ujson
 import datetime
+import os
 
 from magic import Magic
 from tempfile import NamedTemporaryFile
@@ -57,6 +58,7 @@ class DocumentCreateView(Resource):
         Recieves file and options, checks file mimetype,
         validates options and creates converting task
         """
+        debug = ''
         if "file" not in request.files:
             return abort(400, message="file field is required")
         else:
@@ -66,12 +68,20 @@ class DocumentCreateView(Resource):
                     datetime.timedelta(seconds=app.config["ORIGINAL_FILE_TTL"]),
                     tmp_file.name
                 )
-                with Magic() as magic: # detect mimetype
+                with Magic() as magic:  # detect mimetype
                     mimetype = magic.from_file(tmp_file.name)
                     if mimetype not in app.config["SUPPORTED_MIMETYPES"]:
                         return abort(400, message="Not supported mimetype: '{0}'".format(mimetype))
+
+                    # check ext if exist
+                    if('ext' in app.config["SUPPORTED_MIMETYPES"][mimetype]):
+                        ext_test_filename = request.files["file"].filename
+                        ext_test = ext_test_filename.rsplit('.', 1)[1].lower()
+                        if(ext_test not in app.config["SUPPORTED_MIMETYPES"][mimetype]['ext']):
+                            return abort(400, message="Not supported ext for mimetype {1}: '{0}'".format(ext_test, mimetype))
+
                 options = request.form.get("options", None)
-                if options: # options validation
+                if options:  # options validation
                     options = ujson.loads(options)
                     formats = options.get("formats", None)
                     if not isinstance(formats, list) or not formats:
@@ -118,4 +128,5 @@ class DocumentCreateView(Resource):
         return {
             "id": task.id,
             "status": task.status,
+            "debug": debug
         }

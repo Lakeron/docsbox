@@ -1,5 +1,4 @@
 import os
-import shutil
 import datetime
 
 from pylokit import Office
@@ -32,14 +31,18 @@ def remove_file(path):
 @rq.job(timeout=app.config["REDIS_JOB_TIMEOUT"])
 def process_document(path, options, meta):
     current_task = get_current_job()
-    with Office(app.config["LIBREOFFICE_PATH"]) as office: # acquire libreoffice lock
-        with office.documentLoad(path) as original_document: # open original document
-            with TemporaryDirectory() as tmp_dir: # create temp dir where output'll be stored
-                for fmt in options["formats"]: # iterate over requested formats
+    with Office(app.config["LIBREOFFICE_PATH"]) as office:  # acquire libreoffice lock
+        with office.documentLoad(path) as original_document:  # open original document
+            with TemporaryDirectory() as tmp_dir:  # create temp dir where output'll be stored
+
+                # make formats, mainly PDF
+                for fmt in options["formats"]:  # iterate over requested formats
                     current_format = app.config["SUPPORTED_FORMATS"][fmt]
                     name = current_task.id
                     output_path = os.path.join(tmp_dir, name)
                     original_document.saveAs(output_path, fmt=current_format["fmt"])
+
+                # make thumbnails
                 if options.get("thumbnails", None):
                     is_created = False
                     if meta["mimetype"] == "application/pdf":
@@ -56,7 +59,10 @@ def process_document(path, options, meta):
                     if is_created:
                         pdf_tmp_file.close()
                     thumbnails = make_thumbnails(image, tmp_dir, options["thumbnails"]["size"])
+
+                # make zip
                 result_path, result_url = make_zip_archive(current_task.id, tmp_dir)
+
         remove_file.schedule(
             datetime.timedelta(seconds=app.config["RESULT_FILE_TTL"]),
             result_path

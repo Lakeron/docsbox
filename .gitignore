@@ -48,3 +48,5 @@ docs/_build
 /.cache
 
 .env
+
+/redisdata/dump.rdb
