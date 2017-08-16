@@ -1,5 +1,8 @@
 import os
 
+# Queues to listen on
+QUEUES = ['high', 'low', 'default']
+
 
 # RQ DASHBOARD
 RQ_POLL_INTERVAL = 1000  #: Web interface poll period for updates in ms
