@@ -44,8 +44,14 @@ PDF_EXPORT_FORMATS = ["html"]
 
 
 SUPPORTED_MIMETYPES = {
-    # doc as zipped xml
-    "application/zip": {
+    # doc as html
+    "text/html": {
+        "formats": DOCUMENT_EXPORT_FORMATS,
+        "ext": ["doc", "docx"],
+    },
+
+    # doc as x-empty
+    "inode/x-empty": {
         "formats": DOCUMENT_EXPORT_FORMATS,
         "ext": ["doc", "docx"],
     },
